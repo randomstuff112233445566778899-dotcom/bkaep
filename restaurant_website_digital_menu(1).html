@@ -1,0 +1,968 @@
+<!-- ... existing code ... -->
+    <!-- FONT & TAILWIND -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            300: '#FDE047',
+                            400: '#FACC15',
+                            500: '#D4AF37',
+                            600: '#B89222',
+                        },
+                        navy: {
+                            800: '#0F172A',
+                            900: '#0B132B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        .font-brand { font-family: 'Cinzel', serif; }
+        
+        :root {
+            --bg-main: #FFFFFF;
+            --bg-card: #F8FAFC;
+            --bg-nav: rgba(255, 255, 255, 0.95);
+            --text-main: #0F172A;
+            --text-sub: #475569;
+            --accent-color: #D4AF37;
+            --border-color: rgba(212, 175, 55, 0.3);
+            --btn-bg: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            --btn-text: #D4AF37;
+        }
+
+        body { background-color: var(--bg-main); color: var(--text-main); }
+        .dynamic-card { background-color: var(--bg-card); border: 1px solid var(--border-color); }
+        .dynamic-nav { background-color: var(--bg-nav); border-bottom: 1px solid var(--border-color); }
+        .dynamic-btn { background: var(--btn-bg); color: var(--btn-text); border: 1px solid #D4AF37; }
+        .text-accent { color: var(--accent-color); }
+
+        .pulse-dot {
+            box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+            animation: pulse-ring 1.6s infinite cubic-bezier(0.66, 0, 0, 1);
+        }
+        @keyframes pulse-ring {
+            to { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-yellow-400 selection:text-black">
+
+    <!-- INITIAL PROFILE CREATION MODAL -->
+    <div id="initial-profile-setup-modal" class="fixed inset-0 z-50 bg-navy-900/95 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="dynamic-card max-w-md w-full rounded-2xl p-8 border border-yellow-500/50 shadow-2xl text-center">
+            <div id="nav-logo-container" class="w-16 h-16 rounded-full bg-navy-900 text-accent mx-auto flex items-center justify-center text-3xl mb-4 border border-yellow-500/40 overflow-hidden">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h2 class="text-2xl font-bold font-brand mb-1 text-navy-900">4 Brothers Diner</h2>
+            <p class="text-sub text-xs mb-6">Choose your profile type to enter.</p>
+
+            <!-- PROFILE TYPE SWITCHER -->
+            <div class="grid grid-cols-2 gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
+                <button type="button" onclick="setSetupProfileType('customer')" id="setup-type-customer" class="py-2.5 rounded-lg text-xs font-bold transition bg-navy-900 text-yellow-400 shadow">
+                    <i class="fa-solid fa-user mr-1"></i> Customer
+                </button>
+                <button type="button" onclick="setSetupProfileType('employee')" id="setup-type-employee" class="py-2.5 rounded-lg text-xs font-bold transition text-sub hover:text-navy-900">
+                    <i class="fa-solid fa-user-gear mr-1"></i> Employee
+                </button>
+            </div>
+
+            <!-- CUSTOMER SETUP FORM -->
+            <form id="setup-form-customer" onsubmit="handleInitialCustomerSubmit(event)" class="space-y-4 text-left text-xs">
+                <div>
+                    <label class="block text-sub mb-1 font-semibold uppercase">Full Name *</label>
+                    <input type="text" id="setup-c-name" required placeholder="e.g. Muhammad Ali" class="w-full bg-white border border-gray-300 rounded-xl p-3 text-main focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="block text-sub mb-1 font-semibold uppercase">Phone Number *</label>
+                    <input type="tel" id="setup-c-phone" required placeholder="e.g. +92 300 1234567" class="w-full bg-white border border-gray-300 rounded-lg p-3 text-main focus:outline-none focus:border-yellow-500">
+                </div>
+                <div>
+                    <label class="block text-sub mb-1 font-semibold uppercase">Delivery Address *</label>
+                    <textarea id="setup-c-address" required rows="2" placeholder="Street #, Area, City" class="w-full bg-white border border-gray-300 rounded-xl p-3 text-main focus:outline-none focus:border-yellow-500"></textarea>
+                </div>
+                <button type="submit" class="w-full py-3.5 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition mt-2">
+                    Create Customer Profile & Enter
+                </button>
+            </form>
+
+            <!-- EMPLOYEE SETUP FORM -->
+            <form id="setup-form-employee" onsubmit="handleInitialEmployeeSubmit(event)" class="space-y-3 text-left text-xs hidden">
+                <div id="saved-employee-container" class="hidden p-3 bg-yellow-500/10 border border-yellow-500/40 rounded-xl mb-3 text-center">
+                    <p class="font-bold text-navy-900 mb-2">Saved Staff Account Found!</p>
+                    <button type="button" onclick="showEmployeeQuickLoginModal()" class="w-full py-2 bg-navy-900 text-yellow-400 font-bold rounded-lg text-xs">
+                        Quick Login with Password
+                    </button>
+                    <div class="my-2 border-t border-yellow-500/20"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sub mb-1 font-semibold uppercase">First Name *</label>
+                        <input type="text" id="setup-e-firstname" placeholder="Ahmed" class="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-main focus:outline-none focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="block text-sub mb-1 font-semibold uppercase">Last Name *</label>
+                        <input type="text" id="setup-e-lastname" placeholder="Khan" class="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-main focus:outline-none focus:border-yellow-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sub mb-1 font-semibold uppercase">Phone Number *</label>
+                    <input type="tel" id="setup-e-phone" placeholder="+92 300 9999999" class="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-main focus:outline-none focus:border-yellow-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-sub mb-1 font-semibold uppercase">Password *</label>
+                        <input type="password" id="setup-e-pass" placeholder="Password" class="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-main focus:outline-none focus:border-yellow-500">
+                    </div>
+                    <div>
+                        <label class="block text-sub mb-1 font-semibold uppercase">Confirm Pass *</label>
+                        <input type="password" id="setup-e-cpass" placeholder="Confirm" class="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-main focus:outline-none focus:border-yellow-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-yellow-600 mb-1 font-semibold uppercase">Employee Verification Code *</label>
+                    <input type="password" id="setup-e-code" placeholder="Enter authorization code" class="w-full bg-white border border-yellow-500/70 rounded-xl p-2.5 font-bold text-navy-900 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                </div>
+
+                <div id="setup-employee-error" class="text-red-500 font-bold hidden">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> <span id="error-msg-text">Incorrect employee code!</span>
+                </div>
+
+                <button type="submit" class="w-full py-3.5 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition mt-2">
+                    Register & Login as Employee
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- QUICK EMPLOYEE PASSWORD LOGIN MODAL -->
+    <div id="employee-quick-login-modal" class="fixed inset-0 z-50 bg-navy-900/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="dynamic-card max-w-sm w-full rounded-2xl p-6 text-center shadow-2xl">
+            <h3 class="text-xl font-bold text-navy-900 mb-1">Staff Quick Login</h3>
+            <p class="text-sub text-xs mb-4">Enter your employee password to reactivate your account.</p>
+            <input type="password" id="quick-login-pass-input" placeholder="Enter password" class="w-full bg-white border border-gray-300 rounded-xl p-3 text-xs mb-4 text-main focus:outline-none focus:border-yellow-500">
+            <div class="flex gap-2">
+                <button onclick="submitQuickEmployeeLogin()" class="flex-1 py-3 dynamic-btn font-bold text-xs uppercase rounded-xl">Login</button>
+                <button onclick="closeQuickEmployeeLogin()" class="px-4 py-3 bg-gray-200 text-sub font-bold text-xs uppercase rounded-xl">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPPER NAVIGATION BAR WITH TABS -->
+    <header class="dynamic-nav sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-full bg-navy-900 text-yellow-400 flex items-center justify-center font-brand font-bold text-lg border border-yellow-500 overflow-hidden" id="header-logo-icon">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div>
+                    <span class="font-brand font-bold text-base text-navy-950 block leading-tight">4 BROTHERS</span>
+                    <span class="text-[9px] text-yellow-600 uppercase font-bold tracking-wider">Diner & Fast Food</span>
+                </div>
+            </div>
+
+            <!-- TAB BUTTONS -->
+            <nav class="hidden md:flex items-center space-x-2 text-xs font-semibold">
+                <button onclick="switchTab('home')" id="btn-tab-home" class="px-4 py-2 rounded-xl bg-navy-900 text-yellow-400 transition shadow">
+                    <i class="fa-solid fa-house mr-1"></i> Home & Menu
+                </button>
+                <button onclick="switchTab('orders-dashboard')" id="btn-tab-orders" class="px-4 py-2 rounded-xl text-sub hover:text-navy-900 transition hidden">
+                    <i class="fa-solid fa-list-check mr-1"></i> Orders Dashboard
+                </button>
+                <button onclick="switchTab('contact-whatsapp')" id="btn-tab-contact" class="px-4 py-2 rounded-xl text-sub hover:text-navy-900 transition">
+                    <i class="fa-brands fa-whatsapp mr-1 text-emerald-600"></i> WhatsApp & Contact
+                </button>
+            </nav>
+
+            <!-- PROFILE BUTTON -->
+            <div class="flex items-center space-x-3">
+                <button onclick="openProfileModal()" class="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-user-circle text-yellow-600 text-base"></i>
+                    <div class="text-left hidden sm:block">
+                        <p class="text-[10px] text-sub uppercase font-bold" id="header-role-badge">Customer</p>
+                        <p class="text-xs font-bold text-navy-900 max-w-[100px] truncate" id="user-display-name">Account</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow">
+        
+        <!-- TAB 1: HOME & MENUS -->
+        <div id="tab-home" class="tab-content py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                
+                <div id="home-banner-container" class="w-full h-64 sm:h-96 rounded-2xl overflow-hidden mb-8 border border-yellow-500/40 shadow-2xl relative">
+                    <img id="custom-banner-img" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=80" alt="4 Brothers Banner" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/30 to-transparent flex flex-col justify-end p-6 sm:p-10 text-left">
+                        <span class="inline-block bg-yellow-500 text-navy-900 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 w-max shadow">
+                            Est. 2012 • Pakistan
+                        </span>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-white leading-tight font-brand">
+                            4 Brothers Gourmet Fast Food
+                        </h1>
+                        <p class="text-gray-200 text-xs sm:text-sm max-w-xl mt-1">
+                            Pizzas, Pastas, Burgers & Rolls. Verified prices in Pakistani Rupees (PKR).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- MENU DIRECT LINKS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+                    <a href="https://www.google.com/imgres?q=menu%20of%204%20brother&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3690891096871896921&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fp%2FDM4rehos9YZ%2F&docid=_bf7NCNMiuKuLM&tbnid=bhgeAtlH7CpEdM&vet=12ahUKEwii-cCsp_-XAxWgcEEAHYoCDPMQnPAOegQIWRAA..i&w=1440&h=1800&hcb=2&ved=2ahUKEwii-cCsp_-XAxWgcEEAHYoCDPMQnPAOegQIWRAA" 
+                       target="_blank" 
+                       class="group dynamic-card rounded-2xl p-6 text-center transition duration-300 shadow-xl flex flex-col items-center justify-between hover:scale-105">
+                        <div class="w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center text-3xl mb-4">🍝</div>
+                        <div class="mb-4">
+                            <span class="text-xs text-yellow-600 uppercase tracking-widest font-bold">Instagram Menu</span>
+                            <h3 class="text-2xl font-bold mt-1 text-navy-900">PASTA MENU</h3>
+                            <p class="text-sub text-xs mt-2">Alfredo, Fettuccine & Macaroni (Rs. 890 - 1,150)</p>
+                        </div>
+                        <div class="w-full py-3 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl">Open Pasta Menu</div>
+                    </a>
+
+                    <a href="https://www.google.com/imgres?q=menu%20of%204%20brother&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3690891096863477246&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fp%2FDM4rehos9YZ%2F&docid=_bf7NCNMiuKuLM&tbnid=h5toUQBOS2Sl4M&vet=12ahUKEwii-cCsp_-XAxWgcEEAHYoCDPMQnPAOegQIVRAA..i&w=1440&h=1800&hcb=2&ved=2ahUKEwii-cCsp_-XAxWgcEEAHYoCDPMQnPAOegQIVRAA" 
+                       target="_blank" 
+                       class="group dynamic-card rounded-2xl p-6 text-center transition duration-300 shadow-xl flex flex-col items-center justify-between hover:scale-105">
+                        <div class="w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center text-3xl mb-4">🍔</div>
+                        <div class="mb-4">
+                            <span class="text-xs text-yellow-600 uppercase tracking-widest font-bold">Instagram Menu</span>
+                            <h3 class="text-2xl font-bold mt-1 text-navy-900">ROLL & BURGER</h3>
+                            <p class="text-sub text-xs mt-2">Zinger, Smash Burgers & Rolls (Rs. 280 - 650)</p>
+                        </div>
+                        <div class="w-full py-3 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl">Open Roll & Burger</div>
+                    </a>
+
+                    <a href="https://www.google.com/imgres?q=menu%20of%204%20brother&imgurl=https%3A%2F%2Flookaside.instagram.com%2Fseo%2Fgoogle_widget%2Fcrawler%2F%3Fmedia_id%3D3690891096871769770&imgrefurl=https%3A%2F%2Fwww.instagram.com%2Fp%2FDM4rehos9YZ%2F&docid=_bf7NCNMiuKuLM&tbnid=jEGbHmJ2oBnUMM&vet=12ahUKEwii-cCsp_-XAxWgcEEAHYoCDPMQnPAOegQIJBAA..i&w=1440&h=1800&hcb=2&ved=2ahUKEwii-cCsp_-XAxWgcEEAHYoCDPMQnPAOegQIJBAA" 
+                       target="_blank" 
+                       class="group dynamic-card rounded-2xl p-6 text-center transition duration-300 shadow-xl flex flex-col items-center justify-between hover:scale-105">
+                        <div class="w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center text-3xl mb-4">🍕</div>
+                        <div class="mb-4">
+                            <span class="text-xs text-yellow-600 uppercase tracking-widest font-bold">Instagram Menu</span>
+                            <h3 class="text-2xl font-bold mt-1 text-navy-900">PIZZA MENU</h3>
+                            <p class="text-sub text-xs mt-2">Fajita, Tikka & Crown Crust (Rs. 850 - 1,850)</p>
+                        </div>
+                        <div class="w-full py-3 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl">Open Pizza Menu</div>
+                    </a>
+                </div>
+
+                <!-- ONLINE ORDER SECTION -->
+                <div class="max-w-6xl mx-auto text-left">
+                    <div class="mb-8 text-center">
+                        <span class="text-yellow-600 text-xs font-bold uppercase tracking-wider">Fast Food Ordering</span>
+                        <h2 class="text-3xl font-extrabold mt-1 text-navy-900">Order Online with Authentic Menu Prices (PKR)</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2">
+                            <div id="pkr-menu-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                        </div>
+
+                        <div class="dynamic-card rounded-2xl p-6 h-fit sticky top-24 shadow-2xl">
+                            <h3 class="font-bold text-base border-b border-gray-200 pb-3 flex items-center justify-between text-navy-900">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-receipt text-yellow-600"></i> Your Order Bill</span>
+                            </h3>
+
+                            <div id="pkr-cart-items" class="py-4 space-y-3 min-h-[100px] flex flex-col justify-center">
+                                <p class="text-sub text-xs text-center italic" id="empty-cart-text">No items added yet. Click "+ Add" on any item!</p>
+                            </div>
+
+                            <div class="pt-4 border-t border-gray-200 space-y-2 text-xs text-sub">
+                                <div class="flex justify-between">
+                                    <span>Subtotal</span>
+                                    <span id="pkr-subtotal" class="font-bold text-main">Rs. 0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Delivery Fee</span>
+                                    <span id="pkr-delivery" class="font-bold text-main">Rs. 120</span>
+                                </div>
+                                <div class="flex justify-between text-sm font-bold text-navy-900 pt-3 border-t border-gray-200">
+                                    <span>Total Payable</span>
+                                    <span id="pkr-total" class="text-yellow-600 font-extrabold text-base">Rs. 120</span>
+                                </div>
+
+                                <button onclick="placeOrderMsg()" class="mt-4 w-full py-3 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg">
+                                    Place Order with Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TAB 2: STAFF ORDERS DASHBOARD & WEBSITE MANAGER -->
+        <div id="tab-orders-dashboard" class="tab-content py-10 hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <div class="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 rounded-full text-emerald-600 text-xs font-bold uppercase mb-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-dot"></span>
+                        <span>Employee Authorized Portal</span>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-navy-900">Staff Manager & Orders Placed</h2>
+                    <p class="text-sub text-xs mt-2">Manage live customer orders, update delivery fees, menu prices, and upload website images.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div class="dynamic-card p-6 rounded-2xl text-center">
+                        <div class="text-yellow-600 text-3xl font-extrabold mb-1" id="counter-orders">0</div>
+                        <div class="text-xs font-bold uppercase text-sub">Total Orders Placed</div>
+                    </div>
+                    <div class="dynamic-card p-6 rounded-2xl text-center">
+                        <div class="text-yellow-600 text-3xl font-extrabold mb-1" id="display-delivery-fee">Rs. 120</div>
+                        <div class="text-xs font-bold uppercase text-sub">Current Delivery Fee</div>
+                    </div>
+                    <div class="dynamic-card p-6 rounded-2xl text-center">
+                        <div class="text-yellow-600 text-3xl font-extrabold mb-1">Active</div>
+                        <div class="text-xs font-bold uppercase text-sub">Staff Status</div>
+                    </div>
+                </div>
+
+                <!-- STAFF SETTINGS & MENU EDITOR -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                    <div class="dynamic-card p-6 rounded-2xl space-y-4 shadow-xl">
+                        <h4 class="font-bold text-sm text-yellow-600 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> Upload Branding & Delivery Fee Settings
+                        </h4>
+                        <div>
+                            <label class="block text-sub mb-1 font-semibold uppercase text-xs">Set Delivery Fee (PKR)</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="staff-set-delivery-fee" placeholder="120" class="flex-1 bg-white border border-gray-300 rounded-lg p-2.5 text-xs text-main focus:outline-none">
+                                <button onclick="updateDeliveryFeeSetting()" class="px-4 py-2 dynamic-btn font-bold text-xs uppercase rounded-lg">Update Fee</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sub mb-1 font-semibold uppercase text-xs">Upload Brand Logo (from File)</label>
+                            <input type="file" id="staff-logo-file-input" accept="image/*" onchange="uploadStaffLogo(event)" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-main file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-navy-900 hover:file:bg-yellow-400">
+                        </div>
+                        <div>
+                            <label class="block text-sub mb-1 font-semibold uppercase text-xs">Upload Home Banner (from File)</label>
+                            <input type="file" id="staff-banner-file-input" accept="image/*" onchange="uploadStaffBanner(event)" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-main file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-yellow-500 file:text-navy-900 hover:file:bg-yellow-400">
+                        </div>
+                    </div>
+
+                    <div class="dynamic-card p-6 rounded-2xl space-y-4 shadow-xl">
+                        <h4 class="font-bold text-sm text-yellow-600 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-utensils"></i> Add Menu Item & Set Prices
+                        </h4>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <label class="block text-sub mb-1 font-semibold">Item Name</label>
+                                <input type="text" id="edit-item-name" placeholder="Zinger Burger" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-main focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sub mb-1 font-semibold">Category</label>
+                                <select id="edit-item-cat" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-main focus:outline-none">
+                                    <option value="Pizza">Pizza</option>
+                                    <option value="Pasta">Pasta</option>
+                                    <option value="Burger">Burger</option>
+                                    <option value="Roll">Roll</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sub mb-1 font-semibold">Price (PKR)</label>
+                                <input type="number" id="edit-item-price" placeholder="450" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-main focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sub mb-1 font-semibold">Image URL</label>
+                                <input type="text" id="edit-item-img" placeholder="https://..." class="w-full bg-white border border-gray-300 rounded-lg p-2 text-main focus:outline-none">
+                            </div>
+                        </div>
+                        <button onclick="employeeAddMenuItem()" class="w-full py-3 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl shadow mt-2">
+                            Publish Item to Customer Menu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LIVE ORDERS FEED -->
+                <div class="dynamic-card p-6 rounded-2xl max-w-4xl mx-auto">
+                    <h4 class="font-bold text-sm mb-4 flex items-center justify-between text-navy-900">
+                        <span><i class="fa-solid fa-list-check text-yellow-600 mr-2"></i> Live Customer Orders Feed</span>
+                    </h4>
+                    <div class="space-y-3" id="live-orders-feed">
+                        <div class="p-4 bg-white rounded-xl text-xs border border-gray-200 text-sub italic">
+                            No orders placed yet in this session.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: WHATSAPP & PHONE SUPPORT -->
+        <div id="tab-contact-whatsapp" class="tab-content py-10 hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
+                    <div class="dynamic-card p-8 rounded-2xl space-y-6">
+                        <div>
+                            <span class="text-emerald-600 text-xs font-bold uppercase tracking-wider">Direct Communication Hub</span>
+                            <h3 class="text-2xl font-bold mt-1 text-navy-900">Restaurant Numbers & Live Chat</h3>
+                            <p class="text-sub text-xs mt-1">Click below to dial our phone number or message us instantly on WhatsApp.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <a href="tel:0812853377" class="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:border-yellow-500 transition block shadow-sm">
+                                <div class="w-10 h-10 rounded-lg bg-yellow-500/20 text-yellow-600 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-phone"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-sub uppercase">Official Landline</h5>
+                                    <p class="text-base font-bold text-navy-900">081-2853377</p>
+                                </div>
+                            </a>
+                            <a href="https://wa.me/923433733272?text=Hello%204%20Brothers!%20I%20want%20to%20place%20an%20order." target="_blank" class="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-200 hover:border-emerald-500 transition block shadow-sm">
+                                <div class="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-600 flex items-center justify-center text-lg">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-sub uppercase">WhatsApp Order Line</h5>
+                                    <p class="text-base font-bold text-emerald-600">+92 343 3733272</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="dynamic-card p-8 rounded-2xl text-center space-y-5">
+                        <div class="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-600 mx-auto flex items-center justify-center text-3xl">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-navy-900">Quick WhatsApp Order</h4>
+                        <p class="text-sub text-xs">Send your order list directly with your customer profile info.</p>
+                        <a href="https://wa.me/923433733272?text=Hello%204%20Brothers!%20I%20want%20to%20place%20an%20order." target="_blank" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>Open WhatsApp (+92 343 3733272)</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-8 bg-navy-900 text-white border-t border-yellow-500/30 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
+            <span class="font-brand text-xl text-yellow-400 block">4 BROTHERS DINER</span>
+            <p class="text-gray-300">Official Fast Food Restaurant • Phone: <a href="tel:0812853377" class="text-yellow-400 underline">081-2853377</a></p>
+            <p class="text-gray-400">© 2026 4 Brothers Diner. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- PROFILE MODAL -->
+    <div id="profile-modal" class="fixed inset-0 z-50 bg-navy-900/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="dynamic-card max-w-md w-full rounded-2xl p-6 relative">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-sub hover:text-main text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 rounded-full bg-navy-900 text-yellow-400 flex items-center justify-center text-xl font-bold border border-yellow-500">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-navy-900" id="modal-profile-title">Active Profile</h3>
+                    <p class="text-sub text-xs" id="modal-profile-subtitle">Device Session Active</p>
+                </div>
+            </div>
+
+            <div id="profile-details-view" class="space-y-4 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION BOX -->
+    <div id="notice-box" class="fixed bottom-5 right-5 z-50 bg-navy-900 text-yellow-400 border border-yellow-500 px-4 py-3 rounded-xl font-bold text-xs shadow-2xl hidden transition duration-300"></div>
+
+    <script>
+        let pkrMenu = [
+            { id: 1, name: "Creamy Alfredo Fettuccine", price: 1050, cat: "Pasta", img: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=300&q=80" },
+            { id: 2, name: "Spicy Chicken Arrabbiata", price: 950, cat: "Pasta", img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281318?auto=format&fit=crop&w=300&q=80" },
+            { id: 3, name: "Special Macaroni Cheese Pasta", price: 890, cat: "Pasta", img: "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=300&q=80" },
+            { id: 4, name: "Classic Zinger Crispy Burger", price: 420, cat: "Burger", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80" },
+            { id: 5, name: "Double Beef Patty Smash Burger", price: 650, cat: "Burger", img: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=300&q=80" },
+            { id: 6, name: "Crispy Chicken Paratha Roll", price: 320, cat: "Roll", img: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=300&q=80" },
+            { id: 7, name: "Special Mayo Garlic Roll", price: 280, cat: "Roll", img: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=300&q=80" },
+            { id: 8, name: "Chicken Fajita Pizza (Medium)", price: 950, cat: "Pizza", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=80" },
+            { id: 9, name: "Chicken Tikka Pizza (Large)", price: 1450, cat: "Pizza", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=300&q=80" },
+            { id: 10, name: "4 Brothers Crown Crust Pizza", price: 1850, cat: "Pizza", img: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=300&q=80" }
+        ];
+
+        let pkrCart = [];
+        let totalOrdersPlaced = 0;
+        let placedOrdersHistory = [];
+        let currentDeliveryFee = 120;
+
+        let currentUserProfile = {
+            type: "customer",
+            name: "",
+            firstname: "",
+            lastname: "",
+            phone: "",
+            address: "",
+            password: ""
+        };
+
+        window.onload = function() {
+            checkDeviceProfile();
+            renderPkrMenu();
+            updateOrderCounterDisplay();
+            loadSavedImages();
+        };
+
+        function loadSavedImages() {
+            const savedLogo = localStorage.getItem('4brothers_custom_logo');
+            if(savedLogo) {
+                document.getElementById('header-logo-icon').innerHTML = `<img src="${savedLogo}" alt="Logo" class="w-full h-full object-cover rounded-full">`;
+            }
+            const savedBanner = localStorage.getItem('4brothers_custom_banner');
+            if(savedBanner) {
+                const bannerImg = document.getElementById('custom-banner-img');
+                if(bannerImg) bannerImg.src = savedBanner;
+            }
+        }
+
+        function setSetupProfileType(type) {
+            const custBtn = document.getElementById('setup-type-customer');
+            const empBtn = document.getElementById('setup-type-employee');
+            const custForm = document.getElementById('setup-form-customer');
+            const empForm = document.getElementById('setup-form-employee');
+
+            if(type === 'customer') {
+                custBtn.className = "py-2.5 rounded-lg text-xs font-bold transition bg-navy-900 text-yellow-400 shadow";
+                empBtn.className = "py-2.5 rounded-lg text-xs font-bold transition text-sub hover:text-navy-900";
+                custForm.classList.remove('hidden');
+                empForm.classList.add('hidden');
+            } else {
+                empBtn.className = "py-2.5 rounded-lg text-xs font-bold transition bg-navy-900 text-yellow-400 shadow";
+                custBtn.className = "py-2.5 rounded-lg text-xs font-bold transition text-sub hover:text-navy-900";
+                empForm.classList.remove('hidden');
+                custForm.classList.add('hidden');
+                
+                const savedEmp = localStorage.getItem('4brothers_saved_employee');
+                if(savedEmp) {
+                    document.getElementById('saved-employee-container').classList.remove('hidden');
+                } else {
+                    document.getElementById('saved-employee-container').classList.add('hidden');
+                }
+            }
+        }
+
+        function checkDeviceProfile() {
+            const saved = localStorage.getItem('4brothers_user_profile');
+            if(saved) {
+                currentUserProfile = JSON.parse(saved);
+                applyRoleUI();
+                document.getElementById('initial-profile-setup-modal').classList.add('hidden');
+            } else {
+                document.getElementById('initial-profile-setup-modal').classList.remove('hidden');
+            }
+        }
+
+        function applyRoleUI() {
+            const roleBadge = document.getElementById('header-role-badge');
+            const ordersTabBtn = document.getElementById('btn-tab-orders');
+            const userDisplayName = document.getElementById('user-display-name');
+
+            if(currentUserProfile.type === 'employee') {
+                if(userDisplayName) userDisplayName.innerText = `Staff: ${currentUserProfile.firstname}`;
+                if(roleBadge) roleBadge.innerText = `Role: Employee`;
+                if(ordersTabBtn) ordersTabBtn.classList.remove('hidden');
+            } else {
+                if(userDisplayName) userDisplayName.innerText = currentUserProfile.name || "Customer";
+                if(roleBadge) roleBadge.innerText = "Role: Customer";
+                if(ordersTabBtn) ordersTabBtn.classList.add('hidden');
+                
+                const activeOrdersTab = document.getElementById('tab-orders-dashboard');
+                if(activeOrdersTab && !activeOrdersTab.classList.contains('hidden')) {
+                    switchTab('home');
+                }
+            }
+        }
+
+        function handleInitialCustomerSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('setup-c-name').value.trim();
+            const phone = document.getElementById('setup-c-phone').value.trim();
+            const address = document.getElementById('setup-c-address').value.trim();
+
+            if(!name || !phone || !address) {
+                notifyUser("Please fill in all customer fields!");
+                return;
+            }
+
+            currentUserProfile = { type: 'customer', name, phone, address };
+            localStorage.setItem('4brothers_user_profile', JSON.stringify(currentUserProfile));
+            
+            applyRoleUI();
+            document.getElementById('initial-profile-setup-modal').classList.add('hidden');
+            notifyUser("Customer profile created successfully!");
+        }
+
+        function handleInitialEmployeeSubmit(e) {
+            e.preventDefault();
+            const firstname = document.getElementById('setup-e-firstname').value.trim();
+            const lastname = document.getElementById('setup-e-lastname').value.trim();
+            const phone = document.getElementById('setup-e-phone').value.trim();
+            const password = document.getElementById('setup-e-pass').value.trim();
+            const cpass = document.getElementById('setup-e-cpass').value.trim();
+            const code = document.getElementById('setup-e-code').value.trim();
+            const errorEl = document.getElementById('setup-employee-error');
+            const errorText = document.getElementById('error-msg-text');
+
+            if(!firstname || !lastname || !phone || !password) {
+                errorText.innerText = "Please fill in all staff details!";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if(password !== cpass) {
+                errorText.innerText = "Passwords do not match!";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if(code !== "13579") {
+                errorText.innerText = "Incorrect employee code!";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            errorEl.classList.add('hidden');
+            currentUserProfile = { type: 'employee', firstname, lastname, phone, password };
+            localStorage.setItem('4brothers_user_profile', JSON.stringify(currentUserProfile));
+            localStorage.setItem('4brothers_saved_employee', JSON.stringify(currentUserProfile));
+
+            applyRoleUI();
+            document.getElementById('initial-profile-setup-modal').classList.add('hidden');
+            notifyUser("Employee passcode verified & registered!");
+        }
+
+        function showEmployeeQuickLoginModal() {
+            document.getElementById('employee-quick-login-modal').classList.remove('hidden');
+        }
+
+        function closeQuickEmployeeLogin() {
+            document.getElementById('employee-quick-login-modal').classList.add('hidden');
+        }
+
+        function submitQuickEmployeeLogin() {
+            const passInput = document.getElementById('quick-login-pass-input').value.trim();
+            const savedEmp = JSON.parse(localStorage.getItem('4brothers_saved_employee') || '{}');
+
+            if(passInput === savedEmp.password) {
+                currentUserProfile = savedEmp;
+                localStorage.setItem('4brothers_user_profile', JSON.stringify(currentUserProfile));
+                applyRoleUI();
+                closeQuickEmployeeLogin();
+                document.getElementById('initial-profile-setup-modal').classList.add('hidden');
+                notifyUser("Staff quick login successful!");
+            } else {
+                notifyUser("Incorrect staff password!");
+            }
+        }
+
+        function switchTab(tabId) {
+            if(tabId === 'orders-dashboard' && currentUserProfile.type !== 'employee') {
+                notifyUser("Access restricted to employees only!");
+                return;
+            }
+
+            const tabs = ['home', 'orders-dashboard', 'contact-whatsapp'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if(el) el.classList.add('hidden');
+                const btn = document.getElementById(`btn-tab-${t === 'contact-whatsapp' ? 'contact' : t}`);
+                if(btn) btn.className = "px-4 py-2 rounded-xl text-sub hover:text-navy-900 transition";
+            });
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if(activeTab) activeTab.classList.remove('hidden');
+
+            const activeBtn = document.getElementById(`btn-tab-${tabId === 'contact-whatsapp' ? 'contact' : tabId}`);
+            if(activeBtn) activeBtn.className = "px-4 py-2 rounded-xl bg-navy-900 text-yellow-400 transition shadow";
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderPkrMenu() {
+            const grid = document.getElementById('pkr-menu-grid');
+            if(!grid) return;
+            grid.innerHTML = '';
+
+            pkrMenu.forEach(item => {
+                const el = document.createElement('div');
+                el.className = "dynamic-card rounded-xl p-3 flex items-center space-x-3 hover:scale-[1.02] transition shadow-sm";
+                el.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <span class="text-[10px] text-yellow-600 font-bold uppercase">${item.cat}</span>
+                        <h4 class="font-bold text-xs text-navy-900">${item.name}</h4>
+                        <span class="text-yellow-600 text-xs font-bold">Rs. ${item.price}</span>
+                    </div>
+                    <button onclick="addPkrCart(${item.id})" class="px-3 py-1.5 dynamic-btn text-xs font-bold rounded-lg transition shadow-sm">
+                        + Add
+                    </button>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function addPkrCart(id) {
+            const item = pkrMenu.find(i => i.id === id);
+            const found = pkrCart.find(c => c.id === id);
+            if(found) {
+                found.qty++;
+            } else {
+                pkrCart.push({ ...item, qty: 1 });
+            }
+            notifyUser(`Added ${item.name} to bill`);
+            updatePkrCart();
+        }
+
+        function updatePkrCart() {
+            const container = document.getElementById('pkr-cart-items');
+            if(!container) return;
+            let sub = 0;
+
+            if(pkrCart.length === 0) {
+                container.innerHTML = '<p class="text-sub text-xs text-center italic" id="empty-cart-text">No items added yet. Click "+ Add" on any item!</p>';
+            } else {
+                container.innerHTML = '';
+                pkrCart.forEach(item => {
+                    sub += item.price * item.qty;
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center bg-white p-2 rounded-lg text-xs border border-gray-200 shadow-xs";
+                    row.innerHTML = `
+                        <div>
+                            <p class="font-bold text-navy-900">${item.name}</p>
+                            <p class="text-sub text-[10px]">Rs. ${item.price} x ${item.qty}</p>
+                        </div>
+                        <span class="font-bold text-yellow-600">Rs. ${item.price * item.qty}</span>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            const del = pkrCart.length > 0 ? currentDeliveryFee : 0;
+            document.getElementById('pkr-subtotal').innerText = `Rs. ${sub}`;
+            document.getElementById('pkr-delivery').innerText = `Rs. ${del}`;
+            document.getElementById('pkr-total').innerText = `Rs. ${sub + del}`;
+        }
+
+        function updateOrderCounterDisplay() {
+            const counterEl = document.getElementById('counter-orders');
+            if(counterEl) {
+                counterEl.innerText = totalOrdersPlaced.toLocaleString();
+            }
+        }
+
+        function openProfileModal() {
+            const titleEl = document.getElementById('modal-profile-title');
+            const subEl = document.getElementById('modal-profile-subtitle');
+            const viewEl = document.getElementById('profile-details-view');
+
+            if(currentUserProfile.type === 'employee') {
+                titleEl.innerText = `Staff Profile: ${currentUserProfile.firstname}`;
+                subEl.innerText = "Employee Role (Verified)";
+                viewEl.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="p-3 bg-yellow-500/10 border border-yellow-500/40 rounded-xl">
+                            <span class="text-[10px] text-yellow-600 font-bold uppercase">Name</span>
+                            <p class="font-bold text-navy-900 text-sm">${currentUserProfile.firstname} ${currentUserProfile.lastname}</p>
+                        </div>
+                        <div class="p-3 bg-yellow-500/10 border border-yellow-500/40 rounded-xl">
+                            <span class="text-[10px] text-yellow-600 font-bold uppercase">Phone</span>
+                            <p class="font-bold text-navy-900 text-sm">${currentUserProfile.phone}</p>
+                        </div>
+                        <button onclick="logoutProfile()" class="w-full py-3 bg-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl mt-4">
+                            Logout / Switch Profile
+                        </button>
+                    </div>
+                `;
+            } else {
+                titleEl.innerText = "Customer Profile";
+                subEl.innerText = "Registered on device";
+                viewEl.innerHTML = `
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sub mb-1 font-semibold uppercase">Full Name</label>
+                            <input type="text" id="prof-c-name" value="${currentUserProfile.name || ''}" class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-main focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sub mb-1 font-semibold uppercase">Phone Number</label>
+                            <input type="tel" id="prof-c-phone" value="${currentUserProfile.phone || ''}" class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-main focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sub mb-1 font-semibold uppercase">Delivery Address</label>
+                            <textarea id="prof-c-address" rows="2" class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-main focus:outline-none">${currentUserProfile.address || ''}</textarea>
+                        </div>
+                        <button onclick="saveCustomerProfile()" class="w-full py-3 dynamic-btn font-bold text-xs uppercase tracking-wider rounded-xl mt-2">
+                            Update Profile
+                        </button>
+                        <button onclick="logoutProfile()" class="w-full py-2 bg-red-100 text-red-600 font-bold text-xs uppercase rounded-xl">
+                            Logout / Switch Profile
+                        </button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function saveCustomerProfile() {
+            const name = document.getElementById('prof-c-name').value.trim();
+            const phone = document.getElementById('prof-c-phone').value.trim();
+            const address = document.getElementById('prof-c-address').value.trim();
+
+            if(!name || !phone || !address) {
+                notifyUser("Please fill in all fields!");
+                return;
+            }
+
+            currentUserProfile = { type: 'customer', name, phone, address };
+            localStorage.setItem('4brothers_user_profile', JSON.stringify(currentUserProfile));
+            document.getElementById('user-display-name').innerText = name;
+            notifyUser("Profile updated!");
+            closeProfileModal();
+        }
+
+        function logoutProfile() {
+            localStorage.removeItem('4brothers_user_profile');
+            closeProfileModal();
+            location.reload();
+        }
+
+        function updateDeliveryFeeSetting() {
+            const fee = parseInt(document.getElementById('staff-set-delivery-fee').value);
+            if(isNaN(fee) || fee < 0) {
+                notifyUser("Please enter a valid delivery fee!");
+                return;
+            }
+            currentDeliveryFee = fee;
+            document.getElementById('display-delivery-fee').innerText = `Rs. ${fee}`;
+            updatePkrCart();
+            notifyUser(`Delivery fee updated to Rs. ${fee}!`);
+        }
+
+        function uploadStaffLogo(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                localStorage.setItem('4brothers_custom_logo', base64Img);
+                document.getElementById('header-logo-icon').innerHTML = `<img src="${base64Img}" alt="Logo" class="w-full h-full object-cover rounded-full">`;
+                notifyUser("Brand logo uploaded successfully!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function uploadStaffBanner(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                localStorage.setItem('4brothers_custom_banner', base64Img);
+                const bannerImg = document.getElementById('custom-banner-img');
+                if(bannerImg) bannerImg.src = base64Img;
+                notifyUser("Home banner uploaded successfully!");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function employeeAddMenuItem() {
+            const name = document.getElementById('edit-item-name').value.trim();
+            const cat = document.getElementById('edit-item-cat').value;
+            const price = parseInt(document.getElementById('edit-item-price').value);
+            const img = document.getElementById('edit-item-img').value.trim() || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80";
+
+            if(!name || isNaN(price)) {
+                notifyUser("Please enter valid item name and price!");
+                return;
+            }
+
+            pkrMenu.push({ id: pkrMenu.length + 1, name, cat, price, img });
+            renderPkrMenu();
+            
+            document.getElementById('edit-item-name').value = '';
+            document.getElementById('edit-item-price').value = '';
+            document.getElementById('edit-item-img').value = '';
+
+            notifyUser(`Added "${name}" (Rs. ${price}) to menu!`);
+        }
+
+        function notifyUser(msg) {
+            const box = document.getElementById('notice-box');
+            box.innerText = msg;
+            box.classList.remove('hidden');
+            setTimeout(() => {
+                box.classList.add('hidden');
+            }, 2500);
+        }
+
+        function placeOrderMsg() {
+            if(pkrCart.length === 0) {
+                notifyUser("Please add items to your bill!");
+                return;
+            }
+
+            if(currentUserProfile.type !== 'employee' && (!currentUserProfile.name || !currentUserProfile.phone || !currentUserProfile.address)) {
+                openProfileModal();
+                notifyUser("Please complete your profile details first!");
+                return;
+            }
+
+            totalOrdersPlaced++;
+            updateOrderCounterDisplay();
+
+            const orderId = Math.floor(1000 + Math.random() * 9000);
+            const orderRecord = {
+                id: orderId,
+                items: [...pkrCart],
+                profile: currentUserProfile.type === 'employee' ? { name: `Staff: ${currentUserProfile.firstname}`, phone: currentUserProfile.phone, address: "Staff Counter Order" } : { ...currentUserProfile },
+                time: new Date().toLocaleTimeString()
+            };
+            placedOrdersHistory.unshift(orderRecord);
+
+            const feed = document.getElementById('live-orders-feed');
+            if(feed) {
+                if(totalOrdersPlaced === 1) feed.innerHTML = '';
+                const feedItem = document.createElement('div');
+                feedItem.className = "p-4 bg-white rounded-xl text-xs border border-yellow-500/30 space-y-2 shadow-sm";
+                let itemsSummary = orderRecord.items.map(i => `${i.name} (x${i.qty})`).join(', ');
+                
+                feedItem.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                        <span class="font-bold text-yellow-600 text-sm">Order #${orderRecord.id}</span>
+                        <span class="text-sub">${orderRecord.time}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sub">
+                        <div><strong class="text-navy-900">Customer:</strong> ${orderRecord.profile.name}</div>
+                        <div><strong class="text-navy-900">Phone:</strong> <a href="tel:${orderRecord.profile.phone}" class="text-yellow-600 underline">${orderRecord.profile.phone}</a></div>
+                        <div class="sm:col-span-2"><strong class="text-navy-900">Delivery Address:</strong> ${orderRecord.profile.address}</div>
+                        <div class="sm:col-span-2"><strong class="text-navy-900">Items:</strong> ${itemsSummary}</div>
+                    </div>
+                `;
+                feed.prepend(feedItem);
+            }
+
+            notifyUser(`Order #${orderId} placed successfully!`);
+            pkrCart = [];
+            updatePkrCart();
+        }
+    </script>
+</body>
+</html>
